@@ -20,18 +20,12 @@ def query_export(query, name):
         # Grab the Table data
         descripts = cur.description
 
-        # Create Header list
-        header = []
-
-        # Pull the row data out to popluate the headers
-        for desc in descripts:
-            header.append(desc[0])
-
-        click.echo("I'm exporting {}.csv with your requested data".format(name))
+        header = [desc[0] for desc in descripts]
+        click.echo(f"I'm exporting {name}.csv with your requested data")
 
         # Crete a csv file object
 
-        with open('{}.csv'.format(name), mode='w', encoding='utf-8', newline="") as csv_file:
+        with open(f'{name}.csv', mode='w', encoding='utf-8', newline="") as csv_file:
             agent_writer = csv.writer(csv_file, delimiter=',', quotechar='"')
             agent_writer.writerow(header)
             # Loop through each asset

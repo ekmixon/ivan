@@ -74,7 +74,7 @@ def insert_assets(conn, assets):
 
 def drop_tables(conn, table):
     try:
-        drop_table = '''DROP TABLE {}'''.format(table)
+        drop_table = f'''DROP TABLE {table}'''
         cur = conn.cursor()
         cur.execute('pragma journal_mode=wal;')
         cur.execute(drop_table)

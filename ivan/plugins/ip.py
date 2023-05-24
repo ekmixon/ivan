@@ -7,14 +7,18 @@ from .database import db_query
 def plugin_by_ip(ipaddr, plugin):
     try:
         if len(ipaddr) < 17:
-            rows = db_query("SELECT output, cves, score, xrefs, repo_name, repo_id from vulns where asset_ip='{}' and plugin_id='{}'".format(ipaddr, plugin))
+            rows = db_query(
+                f"SELECT output, cves, score, xrefs, repo_name, repo_id from vulns where asset_ip='{ipaddr}' and plugin_id='{plugin}'"
+            )
         else:
-            rows = db_query("SELECT output, cves, score, xrefs, repo_name, repo_id from vulns where asset_uuid='{}' and plugin_id='{}'".format(ipaddr, plugin))
+            rows = db_query(
+                f"SELECT output, cves, score, xrefs, repo_name, repo_id from vulns where asset_uuid='{ipaddr}' and plugin_id='{plugin}'"
+            )
 
         for plug in rows:
-            click.echo("Found in Repository:\n{} - {}".format(plug[4], plug[5]))
+            click.echo(f"Found in Repository:\n{plug[4]} - {plug[5]}")
             if plug[2] != ' ':
-                click.echo("\nVPR Score: {}".format(plug[2]))
+                click.echo(f"\nVPR Score: {plug[2]}")
 
             if plug[3] != ' ':
                 click.echo("\nCross References\n")
@@ -29,7 +33,7 @@ def plugin_by_ip(ipaddr, plugin):
             if plug[1] != ' ':
                 click.echo("\nCVEs attached to this plugin")
                 click.echo("-" * 80)
-                click.echo("{}\n".format(plug[1]))
+                click.echo(f"{plug[1]}\n")
         click.echo()
     except IndexError:
         click.echo("No information found for this plugin")
@@ -37,7 +41,9 @@ def plugin_by_ip(ipaddr, plugin):
 
 def vulns_by_uuid(uuid):
     try:
-        data = db_query("select plugin_id, plugin_name, plugin_family, port, protocol, severity, repo_name from vulns where asset_ip='{}' and severity !='info';".format(uuid))
+        data = db_query(
+            f"select plugin_id, plugin_name, plugin_family, port, protocol, severity, repo_name from vulns where asset_ip='{uuid}' and severity !='info';"
+        )
 
         click.echo("\n{:10s} {:70s} {:35s} {:10s} {:6s} {:6s} {}".format("Plugin", "Plugin Name", "Plugin Family", "Repo_name", "Port", "Proto", "Severity"))
         click.echo("-"*150)
@@ -58,7 +64,9 @@ def vulns_by_uuid(uuid):
 
 def info_by_uuid(uuid):
     try:
-        data = db_query("select plugin_id, plugin_name, plugin_family, port, protocol, severity from vulns where asset_ip='{}' and severity =='info';".format(uuid))
+        data = db_query(
+            f"select plugin_id, plugin_name, plugin_family, port, protocol, severity from vulns where asset_ip='{uuid}' and severity =='info';"
+        )
 
         click.echo("\n{:10s} {:90s} {:25s} {:6s} {:6s} {}".format("Plugin", "Plugin Name", "Plugin Family", "Port", "Proto", "Severity"))
         click.echo("-"*150)
@@ -78,7 +86,9 @@ def info_by_uuid(uuid):
 
 def cves_by_uuid(uuid):
     try:
-        data = db_query("select plugin_id, cves from vulns where asset_ip='{}' and cves !=' ';".format(uuid))
+        data = db_query(
+            f"select plugin_id, cves from vulns where asset_ip='{uuid}' and cves !=' ';"
+        )
 
         click.echo("\n{:10s} {}".format("Plugin", "CVEs"))
         click.echo("-"*150)
@@ -181,7 +191,7 @@ def ip(ctx, ipaddr, plugin, n, p, t, o, c, s, r, patches, d, software, outbound,
             for plugins in data:
                 output = plugins[0]
                 port = plugins[1]
-                click.echo("\n{} {}".format(str(output), str(port)))
+                click.echo(f"\n{str(output)} {str(port)}")
             click.echo()
         except IndexError:
             click.echo("No information for plugin 22964")
