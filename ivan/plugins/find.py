@@ -5,7 +5,9 @@ import textwrap
 
 
 def find_by_plugin(pid):
-    rows = db_query("SELECT asset_ip, asset_uuid, asset_hostname, repo_name, repo_id from vulns where plugin_id={}".format(pid))
+    rows = db_query(
+        f"SELECT asset_ip, asset_uuid, asset_hostname, repo_name, repo_id from vulns where plugin_id={pid}"
+    )
 
     click.echo("\n{:8s} {:16s} {:46s} {:46} {}".format("Plugin", "IP Address", "FQDN", "Repo Name", "Repo ID"))
     click.echo("-" * 150)
@@ -28,22 +30,23 @@ def plugin(plugin_id, o):
     if not str.isdigit(plugin_id):
         click.echo("You didn't enter a number")
         exit()
+    elif o == "":
+        find_by_plugin(plugin_id)
+
     else:
-        if o != "":
-            click.echo("\n{:8s} {:16s} {:46s}".format("Plugin", "IP Address", "FQDN", "Repo Name", "Repo ID"))
-            click.echo("-" * 150)
+        click.echo("\n{:8s} {:16s} {:46s}".format("Plugin", "IP Address", "FQDN", "Repo Name", "Repo ID"))
+        click.echo("-" * 150)
 
-            plugin_data = db_query("SELECT asset_ip, asset_uuid, asset_hostname, repo_name, repo_id from vulns where plugin_id='{}' and output LIKE '%{}%';".format(plugin_id,o))
+        plugin_data = db_query(
+            f"SELECT asset_ip, asset_uuid, asset_hostname, repo_name, repo_id from vulns where plugin_id='{plugin_id}' and output LIKE '%{o}%';"
+        )
 
-            for row in plugin_data:
-                try:
-                    fqdn = row[2]
-                except:
-                    fqdn = " "
-                click.echo("{:8s} {:16s} {:46s {:46} {}".format(str(plugin_id), row[0], textwrap.shorten(fqdn, 46), row[3], row[4]))
-
-        else:
-            find_by_plugin(plugin_id)
+        for row in plugin_data:
+            try:
+                fqdn = row[2]
+            except:
+                fqdn = " "
+            click.echo("{:8s} {:16s} {:46s {:46} {}".format(str(plugin_id), row[0], textwrap.shorten(fqdn, 46), row[3], row[4]))
 
 
 @find.command(help="Find Assets that have a given CVE iD")
@@ -60,7 +63,9 @@ def cve(cve_id):
         click.echo("\n{:8s} {:16s} {:46s} {:46} {}".format("Plugin", "IP Address", "FQDN", "Repo Name", "Repo ID"))
         click.echo("-" * 150)
 
-        plugin_data = db_query("SELECT asset_ip, asset_uuid, asset_hostname where cves LIKE '%{}%';".format(cve_id))
+        plugin_data = db_query(
+            f"SELECT asset_ip, asset_uuid, asset_hostname where cves LIKE '%{cve_id}%';"
+        )
 
         for row in plugin_data:
             try:
@@ -97,7 +102,9 @@ def output(out_put):
     click.echo("\n{:8s} {:16s} {:46s} {:46} {}".format("Plugin", "IP Address", "FQDN", "Repo Name", "Repo ID"))
     click.echo("-" * 150)
 
-    plugin_data = db_query("SELECT asset_ip, asset_uuid, asset_hostname, plugin_id, repo_name, repo_id from vulns where output LIKE '%{}%';".format(str(out_put)))
+    plugin_data = db_query(
+        f"SELECT asset_ip, asset_uuid, asset_hostname, plugin_id, repo_name, repo_id from vulns where output LIKE '%{str(out_put)}%';"
+    )
 
     for row in plugin_data:
         try:
@@ -125,7 +132,9 @@ def creds():
 @click.argument('minute')
 def scantime(minute):
 
-    click.echo("\n*** Below are the assets that took longer than {} minutes to scan ***".format(str(minute)))
+    click.echo(
+        f"\n*** Below are the assets that took longer than {str(minute)} minutes to scan ***"
+    )
 
     data = db_query("SELECT asset_ip, asset_hostname, plugin_id, repo_name, repo_id, output from vulns where plugin_id='19506';")
 
@@ -174,7 +183,9 @@ def scantime(minute):
 @find.command(help="Find Assets with a given port open")
 @click.argument('open_port')
 def port(open_port):
-    data = db_query("SELECT plugin_id, asset_ip, asset_hostname, repo_name, repo_id from vulns where port='{}' and (plugin_id='11219' or plugin_id='14272' or plugin_id='14274' or plugin_id='34220' or plugin_id='10335');".format(open_port))
+    data = db_query(
+        f"SELECT plugin_id, asset_ip, asset_hostname, repo_name, repo_id from vulns where port='{open_port}' and (plugin_id='11219' or plugin_id='14272' or plugin_id='14274' or plugin_id='34220' or plugin_id='10335');"
+    )
 
     try:
         click.echo("\nThe Following assets had Open ports found by various plugins")
@@ -206,9 +217,11 @@ def query(statement):
 @click.argument('plugin_name')
 def name(plugin_name):
 
-    plugin_data = db_query("SELECT asset_ip, plugin_name, plugin_id, repo_name, repo_id from vulns where plugin_name LIKE '%" + plugin_name + "%';")
+    plugin_data = db_query(
+        f"SELECT asset_ip, plugin_name, plugin_id, repo_name, repo_id from vulns where plugin_name LIKE '%{plugin_name}%';"
+    )
 
-    click.echo("\nThe Following assets had '{}' in the Plugin Name".format(plugin_name))
+    click.echo(f"\nThe Following assets had '{plugin_name}' in the Plugin Name")
     click.echo("\n{:8s} {:20} {:70} {:40} {} ".format("Plugin", "IP address", "Plugin Name", "Repo Name", "Repo ID"))
     click.echo("-" * 150)
 
@@ -226,10 +239,14 @@ def xrefs(xref, xid):
     click.echo("-" * 150)
 
     if xid:
-        xref_data = db_query("select plugin_id, asset_ip, asset_hostname, repo_name, repo_id, xrefs from vulns where xrefs LIKE '%{}%' AND xrefs LIKE '%{}%'".format(xref, xid))
+        xref_data = db_query(
+            f"select plugin_id, asset_ip, asset_hostname, repo_name, repo_id, xrefs from vulns where xrefs LIKE '%{xref}%' AND xrefs LIKE '%{xid}%'"
+        )
 
     else:
-        xref_data = db_query("select plugin_id, asset_ip, asset_hostname, repo_name, repo_id, xrefs from vulns where xrefs LIKE '%{}%'".format(xref))
+        xref_data = db_query(
+            f"select plugin_id, asset_ip, asset_hostname, repo_name, repo_id, xrefs from vulns where xrefs LIKE '%{xref}%'"
+        )
 
     for row in xref_data:
         try:

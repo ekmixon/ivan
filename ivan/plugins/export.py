@@ -18,17 +18,17 @@ def query(statement, file):
 @click.option('--file', default="vuln_data", help="Name of the file excluding '.csv'")
 @click.option('--severity', type=click.Choice(['critical', 'high', 'medium', 'low', 'info'], case_sensitive=False), multiple=True)
 def vulns(file, severity):
-    click.echo("\nExporting your data now. Saving {}.csv now...\n".format(file))
+    click.echo(f"\nExporting your data now. Saving {file}.csv now...\n")
 
     if severity:
 
         if len(severity) == 1:
             # multiple choice values are returned as a tuple.
             # Here I break it out and put it in the format needed for sql
-            asset_query = "select * from vulns where severity in ('{}');".format(severity[0])
+            asset_query = f"select * from vulns where severity in ('{severity[0]}');"
         else:
             # Here I just send the tuple in the query
-            asset_query = "select * from vulns where severity in {};".format(severity)
+            asset_query = f"select * from vulns where severity in {severity};"
     else:
         asset_query = "select * from vulns;"
 

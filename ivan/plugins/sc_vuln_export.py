@@ -255,4 +255,4 @@ def vuln_export():
     db_query("CREATE INDEX vulns_cves on vulns (cves);")
     end = time.time()
 
-    click.echo("Script took: {}".format(end-start))
+    click.echo(f"Script took: {end - start}")
